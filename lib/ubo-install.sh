@@ -191,22 +191,30 @@ on run
 		end tell
 	end try
 	if chromeRunning then
-		display dialog "Chrome is already running without uBlock Origin's MV2 flags." & return & return & "Quit Chrome and relaunch with uBlock Origin?" buttons {"Cancel", "Quit & Relaunch"} default button "Quit & Relaunch" with icon caution
-		if button returned of result is "Quit & Relaunch" then
-			tell application "Google Chrome" to quit
-			delay 2
-			repeat
-				try
-					tell application "System Events"
-						set stillRunning to (exists (processes where name is "Google Chrome"))
-					end tell
-				on error
-					set stillRunning to false
-				end try
-				if not stillRunning then exit repeat
-				delay 0.5
-			end repeat
-			do shell script "open -a '/Applications/Google Chrome.app' --args " & mv2Flags & loadFlag
+		set hasFlags to false
+		try
+			set hasFlags to (do shell script "ps aux | grep -v grep | grep 'Google Chrome' | grep -c 'ExtensionManifestV2Unsupported' || true") is not "0"
+		end try
+		if hasFlags then
+			tell application "Google Chrome" to activate
+		else
+			display dialog "Chrome is running without uBlock Origin." & return & return & "Quit Chrome and relaunch with uBlock Origin?" buttons {"Cancel", "Quit & Relaunch"} default button "Quit & Relaunch" with icon caution
+			if button returned of result is "Quit & Relaunch" then
+				tell application "Google Chrome" to quit
+				delay 2
+				repeat
+					try
+						tell application "System Events"
+							set stillRunning to (exists (processes where name is "Google Chrome"))
+						end tell
+					on error
+						set stillRunning to false
+					end try
+					if not stillRunning then exit repeat
+					delay 0.5
+				end repeat
+				do shell script "open -a '/Applications/Google Chrome.app' --args " & mv2Flags & loadFlag
+			end if
 		end if
 	else
 		do shell script "open -a '/Applications/Google Chrome.app' --args " & mv2Flags & loadFlag
