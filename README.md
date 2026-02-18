@@ -1,44 +1,53 @@
 # ubo
 
-One-command uBlock Origin installer for Google Chrome on macOS.
+One-command uBlock Origin installer for Google Chrome on **macOS** and **Windows**.
 
 Installs [uBlock Origin](https://github.com/gorhill/uBlock) (the full MV2 version) and creates a Chrome launcher that keeps MV2 extensions alive — all with a single command.
 
 ## Install
 
-**Option A: Homebrew**
+### macOS
+
+**Homebrew (recommended):**
 
 ```bash
-brew tap neel49/ubo
-brew install ubo
+brew tap neel49/ubo && brew install ubo
 ubo install
 ```
 
-**Option B: curl**
+**Or curl:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/neel49/ubo/main/install.sh | bash
 ubo install
 ```
 
-**Option C: From source**
+### Windows
 
-```bash
-git clone https://github.com/neel49/ubo.git
-cd ubo
-make install
+**PowerShell one-liner:**
+
+```powershell
+irm https://raw.githubusercontent.com/neel49/ubo/main/windows/install.ps1 | iex
 ubo install
+```
+
+**Or from source:**
+
+```powershell
+git clone https://github.com/neel49/ubo.git
+cd ubo\windows
+.\ubo.ps1 install
 ```
 
 ## What it does
 
 1. Downloads the latest uBlock Origin from [GitHub releases](https://github.com/gorhill/uBlock/releases)
-2. Creates a **Chrome uBO** app in `/Applications` that launches Chrome with MV2 support flags
+2. Creates a **Chrome uBO** launcher (macOS app / Windows shortcut) that opens Chrome with MV2 support flags
 3. uBlock Origin loads automatically when you open Chrome through the launcher
 
 ## Usage
 
-```bash
+```
 ubo install     # Set up everything
 ubo status      # Check installation status
 ubo update      # Update uBlock Origin to latest release
@@ -50,32 +59,38 @@ ubo uninstall   # Remove everything
 
 Chrome is deprecating Manifest V2 extensions, which uBlock Origin relies on. This tool:
 
-- Downloads the uBlock Origin extension files to `~/.ubo/`
-- Creates a macOS app that launches Chrome with `--disable-features=ExtensionManifestV2Unsupported,ExtensionManifestV2Disabled` and `--load-extension` flags
-- The launcher app uses Chrome's own icon and can be pinned to your Dock
+- Downloads the uBlock Origin extension files locally
+- Creates a launcher that starts Chrome with `--disable-features=ExtensionManifestV2Unsupported,ExtensionManifestV2Disabled` and `--load-extension` flags
+- **macOS**: Creates a "Chrome uBO" app in `/Applications` (pin to Dock)
+- **Windows**: Creates a "Chrome uBO" shortcut on Desktop and Start Menu (pin to taskbar)
 
 ## After installing
 
-1. **Quit Chrome** if it's running
-2. Open **Chrome uBO** from `/Applications` or Spotlight
+1. **Close Chrome** completely if it's running
+2. Open **Chrome uBO** from your Dock (macOS) or Desktop (Windows)
 3. Chrome will show a "developer mode extensions" dialog — click **Cancel** to dismiss
 4. uBlock Origin is loaded and ready to go
-5. Pin **Chrome uBO** to your Dock so you always launch Chrome with uBlock Origin
+5. Pin **Chrome uBO** to your Dock/taskbar for easy access
 
 ## Important notes
 
-- Always open Chrome through the **Chrome uBO** app (not the regular Chrome). Regular Chrome won't have uBlock Origin or MV2 support.
-- If Chrome is already running, the launcher will offer to quit and relaunch it with the correct flags.
+- Always open Chrome through **Chrome uBO** (not regular Chrome). Regular Chrome won't have uBlock Origin or MV2 support.
+- If Chrome is already running with the right flags, the launcher just brings it to the front.
+- If Chrome is running without flags, the launcher will offer to restart it.
 - The extension doesn't auto-update. Run `ubo update` periodically to get the latest version.
 - Google could remove the MV2 flag support in future Chrome versions.
 
 ## Uninstall
 
+**macOS:**
 ```bash
-ubo uninstall           # Remove extension and launcher app
-brew uninstall ubo      # Remove the ubo command (Homebrew)
-# or
-sudo rm /usr/local/bin/ubo  # Remove the ubo command (curl install)
+ubo uninstall
+brew uninstall ubo
+```
+
+**Windows:**
+```powershell
+ubo uninstall
 ```
 
 ## License
