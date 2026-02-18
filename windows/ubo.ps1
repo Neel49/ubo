@@ -122,7 +122,7 @@ function Get-Extension {
 # --- Create shortcuts ---
 function New-Shortcuts {
     param([string]$ChromePath)
-    $shortcutArgs = "$MV2Flags `"--load-extension=$ExtDir`""
+    $shortcutArgs = "$MV2Flags --load-extension=$ExtDir"
     $WshShell = New-Object -ComObject WScript.Shell
 
     $desktopLnk = Join-Path $Desktop $ShortcutName
@@ -189,6 +189,9 @@ function Invoke-Install {
 
     Write-Host ""
     Write-Success "Installation complete!"
+    Write-Host ""
+    Write-Host "  Extension path: $ExtDir" -ForegroundColor Gray
+    Write-Host ("  manifest.json:  " + (Test-Path (Join-Path $ExtDir "manifest.json"))) -ForegroundColor Gray
     Write-Host ""
 
     # Auto-launch Chrome with uBlock Origin if Chrome is not running
@@ -351,11 +354,12 @@ function Invoke-Launch {
     $chrome = Find-Chrome
     if (-not $chrome) { Write-Err "Chrome not found."; exit 1 }
 
-    $launchArgs = $MV2Flags
     if (Test-Path $ExtDir) {
-        $launchArgs = "$MV2Flags `"--load-extension=$ExtDir`""
+        Start-Process -FilePath $chrome -ArgumentList $MV2Flags, "--load-extension=$ExtDir"
     }
-    Start-Process -FilePath $chrome -ArgumentList $launchArgs
+    else {
+        Start-Process -FilePath $chrome -ArgumentList $MV2Flags
+    }
 }
 
 # --- Help ---
