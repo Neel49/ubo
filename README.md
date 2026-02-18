@@ -93,6 +93,8 @@ brew uninstall ubo
 ubo uninstall
 ```
 
-## License
 
-MIT
+## Credits
+
+This entire process is just a wrapper for the process defined here (just me trying to make it easier to do): https://www.reddit.com/r/uBlockOrigin/comments/1mtowwf/end_of_support_for_ubo_on_chrome_chromium/
+
