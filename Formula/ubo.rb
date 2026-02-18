@@ -1,8 +1,8 @@
 class Ubo < Formula
   desc "One-command uBlock Origin installer for Google Chrome on macOS"
   homepage "https://github.com/neel49/ubo"
-  url "https://github.com/neel49/ubo/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "9709914716058fbca1f7634dfb9139c1d014e4f8a19b4254c053e38be6d2f4af"
+  url "https://github.com/neel49/ubo/archive/refs/tags/v0.1.1.tar.gz"
+  sha256 "76f3473bd3d9111d85269c79ac46b8e711c6bdcd21767a956f92f70cd3184623"
   license "MIT"
 
   depends_on :macos
