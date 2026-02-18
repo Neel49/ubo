@@ -6,20 +6,26 @@ Installs [uBlock Origin](https://github.com/gorhill/uBlock) (the full MV2 versio
 
 ## Install
 
-### macOS
+### macOS (Homebrew)
 
-**Step 1** — Install the `ubo` command (pick one):
-
+**Step 1** — Install the `ubo` command:
 ```bash
 brew tap neel49/ubo && brew install ubo
 ```
 
+**Step 2** — Download uBlock Origin and create the launcher:
+```bash
+ubo install
+```
+
+### macOS (curl)
+
+**Step 1** — Install the `ubo` command:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/neel49/ubo/main/install.sh | bash
 ```
 
 **Step 2** — Download uBlock Origin and create the launcher:
-
 ```bash
 ubo install
 ```
@@ -27,13 +33,11 @@ ubo install
 ### Windows
 
 **Step 1** — Install the `ubo` command:
-
 ```powershell
 irm https://raw.githubusercontent.com/neel49/ubo/main/windows/install.ps1 | iex
 ```
 
 **Step 2** — Download uBlock Origin and create the shortcuts:
-
 ```powershell
 ubo install
 ```
