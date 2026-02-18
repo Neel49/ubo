@@ -19,6 +19,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Force TLS 1.2 (PowerShell 5.1 defaults to TLS 1.0 which GitHub rejects)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # --- Constants ---
 $UboVersion = "0.1.0"
 $ExtId = "cjpalhdlnbpafiamejdnhcphjbkeiagm"

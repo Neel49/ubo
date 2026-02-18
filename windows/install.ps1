@@ -3,42 +3,28 @@
 # Usage: irm https://raw.githubusercontent.com/neel49/ubo/main/windows/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
-$Repo = "neel49/ubo"
+
+# Force TLS 1.2 (PowerShell 5.1 defaults to TLS 1.0 which GitHub rejects)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 $UboDir = Join-Path $env:LOCALAPPDATA "ubo"
 $UboScript = Join-Path $UboDir "ubo.ps1"
 $UboBat = Join-Path $UboDir "ubo.bat"
+$ScriptUrl = "https://raw.githubusercontent.com/neel49/ubo/main/windows/ubo.ps1"
 
 Write-Host "==> Installing ubo..." -ForegroundColor Cyan
 
-# Get latest release
+# Download ubo.ps1 directly (no API call needed)
+New-Item -ItemType Directory -Path $UboDir -Force | Out-Null
+
 try {
-    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest" -UseBasicParsing
-    $tag = $release.tag_name
+    Invoke-WebRequest -Uri $ScriptUrl -OutFile $UboScript -UseBasicParsing
 }
 catch {
-    Write-Host "Error: Could not reach GitHub. Check your internet connection." -ForegroundColor Red
+    Write-Host "Error: Could not download ubo. Check your internet connection." -ForegroundColor Red
+    Write-Host "  URL: $ScriptUrl" -ForegroundColor Red
     exit 1
 }
-
-Write-Host "==> Latest version: $tag" -ForegroundColor Cyan
-
-# Download and extract
-$zipUrl = "https://github.com/$Repo/archive/refs/tags/$tag.zip"
-$tmpZip = Join-Path $env:TEMP "ubo-install.zip"
-$tmpDir = Join-Path $env:TEMP "ubo-install"
-
-Write-Host "==> Downloading..." -ForegroundColor Cyan
-Invoke-WebRequest -Uri $zipUrl -OutFile $tmpZip -UseBasicParsing
-
-if (Test-Path $tmpDir) { Remove-Item $tmpDir -Recurse -Force }
-Expand-Archive -Path $tmpZip -DestinationPath $tmpDir -Force
-
-# Find the extracted folder
-$extracted = Get-ChildItem -Path $tmpDir -Directory | Select-Object -First 1
-
-# Install ubo.ps1
-New-Item -ItemType Directory -Path $UboDir -Force | Out-Null
-Copy-Item -Path (Join-Path $extracted.FullName "windows\ubo.ps1") -Destination $UboScript -Force
 
 # Create a ubo.bat wrapper so "ubo" works from cmd and PowerShell
 @"
@@ -50,13 +36,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ubo.ps1" %*
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$UboDir*") {
     [Environment]::SetEnvironmentVariable("Path", "$currentPath;$UboDir", "User")
+    # Also update current session so ubo works immediately
+    $env:Path = "$env:Path;$UboDir"
     Write-Host "==> Added $UboDir to your PATH" -ForegroundColor Cyan
-    Write-Host "    You may need to restart your terminal for 'ubo' to work." -ForegroundColor Yellow
 }
-
-# Cleanup
-Remove-Item $tmpZip -Force -ErrorAction SilentlyContinue
-Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
 Write-Host "==> ubo installed successfully!" -ForegroundColor Green
