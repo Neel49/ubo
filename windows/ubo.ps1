@@ -17,6 +17,7 @@ $MV2Flags = "--disable-features=ExtensionManifestV2Unsupported,ExtensionManifest
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $StartMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
 $ShortcutName = "Chrome uBO.lnk"
+$UserDataDir = Join-Path $UboDir "profile"
 
 # --- Find Chrome ---
 function Find-Chrome {
@@ -122,7 +123,7 @@ function Get-Extension {
 # --- Create shortcuts ---
 function New-Shortcuts {
     param([string]$ChromePath)
-    $shortcutArgs = "$MV2Flags --load-extension=$ExtDir"
+    $shortcutArgs = "$MV2Flags --user-data-dir=`"$UserDataDir`" --load-extension=`"$ExtDir`""
     $WshShell = New-Object -ComObject WScript.Shell
 
     $desktopLnk = Join-Path $Desktop $ShortcutName
@@ -354,12 +355,13 @@ function Invoke-Launch {
     $chrome = Find-Chrome
     if (-not $chrome) { Write-Err "Chrome not found."; exit 1 }
 
+    New-Item -ItemType Directory -Path $UserDataDir -Force | Out-Null
+
+    $launchArgs = "$MV2Flags --user-data-dir=`"$UserDataDir`""
     if (Test-Path $ExtDir) {
-        Start-Process -FilePath $chrome -ArgumentList $MV2Flags, "--load-extension=$ExtDir"
+        $launchArgs += " --load-extension=`"$ExtDir`""
     }
-    else {
-        Start-Process -FilePath $chrome -ArgumentList $MV2Flags
-    }
+    Start-Process -FilePath $chrome -ArgumentList $launchArgs
 }
 
 # --- Help ---
