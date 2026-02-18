@@ -154,14 +154,8 @@ for a in assets:
 
 _ensure_launcher() {
   if [ -d "$LAUNCHER_APP_PATH" ]; then
-    info "Launcher app already exists at $LAUNCHER_APP_PATH"
-    read -rp "  Rebuild it? [y/N] " confirm
-    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-      return 0
-    fi
     rm -rf "$LAUNCHER_APP_PATH"
   fi
-
   _create_launcher
 }
 
