@@ -1,0 +1,109 @@
+#!/bin/bash
+set -euo pipefail
+
+# ubo - One-command uBlock Origin installer for macOS Chrome
+UBO_VERSION="0.1.0"
+
+# Extension and paths
+UBO_EXT_ID="cjpalhdlnbpafiamejdnhcphjbkeiagm"
+UBO_DIR="${UBO_DATA_DIR:-$HOME/.ubo}"
+CHROME_APP="/Applications/Google Chrome.app"
+CHROME_EXEC="$CHROME_APP/Contents/MacOS/Google Chrome"
+LAUNCHER_APP_NAME="Chrome uBO"
+LAUNCHER_APP_PATH="/Applications/${LAUNCHER_APP_NAME}.app"
+MV2_FLAGS="--disable-features=ExtensionManifestV2Unsupported,ExtensionManifestV2Disabled"
+GITHUB_REPO="gorhill/uBlock"
+
+# Resolve the real script location (handles Homebrew symlinks)
+resolve_path() {
+  local path="$1"
+  while [ -L "$path" ]; do
+    local dir
+    dir="$(cd "$(dirname "$path")" && pwd)"
+    path="$(readlink "$path")"
+    [[ "$path" != /* ]] && path="$dir/$path"
+  done
+  echo "$(cd "$(dirname "$path")" && pwd)"
+}
+
+SCRIPT_DIR="$(resolve_path "$0")"
+BASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+LIB_DIR="$BASE_DIR/lib"
+RESOURCES_DIR="$BASE_DIR/resources"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+info()    { echo -e "${BLUE}==>${NC} ${BOLD}$*${NC}"; }
+success() { echo -e "${GREEN}==>${NC} ${BOLD}$*${NC}"; }
+warn()    { echo -e "${YELLOW}Warning:${NC} $*"; }
+error()   { echo -e "${RED}Error:${NC} $*" >&2; }
+
+usage() {
+  cat <<EOF
+ubo $UBO_VERSION - uBlock Origin installer for macOS Chrome
+
+Usage: ubo <command>
+
+Commands:
+  install     Download uBlock Origin and create Chrome launcher app
+  uninstall   Remove uBlock Origin and launcher app
+  status      Check installation status
+  update      Update uBlock Origin to latest release
+  launch      Launch Chrome with uBlock Origin and MV2 support
+  version     Print version
+  help        Show this help
+
+Examples:
+  ubo install     # Set up everything
+  ubo status      # Check if it's working
+  ubo update      # Get the latest uBlock Origin
+EOF
+}
+
+case "${1:-help}" in
+  install)
+    source "$LIB_DIR/ubo-install.sh"
+    ubo_install
+    ;;
+  uninstall)
+    source "$LIB_DIR/ubo-uninstall.sh"
+    ubo_uninstall
+    ;;
+  status)
+    source "$LIB_DIR/ubo-status.sh"
+    ubo_status
+    ;;
+  update)
+    source "$LIB_DIR/ubo-update.sh"
+    ubo_update
+    ;;
+  launch)
+    if [ -d "$LAUNCHER_APP_PATH" ]; then
+      open -a "$LAUNCHER_APP_PATH"
+    elif [ -d "$CHROME_APP" ]; then
+      warn "Launcher app not found. Opening Chrome directly with flags."
+      open -a "$CHROME_APP" --args $MV2_FLAGS
+    else
+      error "Chrome not found. Install Chrome first."
+      exit 1
+    fi
+    ;;
+  version|-v|--version)
+    echo "ubo $UBO_VERSION"
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    error "Unknown command: $1"
+    echo ""
+    usage
+    exit 1
+    ;;
+esac
