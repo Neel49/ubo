@@ -357,9 +357,9 @@ function Invoke-Launch {
 
     New-Item -ItemType Directory -Path $UserDataDir -Force | Out-Null
 
-    $launchArgs = "$MV2Flags --user-data-dir=`"$UserDataDir`""
+    $launchArgs = @($MV2Flags, "--user-data-dir=$UserDataDir")
     if (Test-Path $ExtDir) {
-        $launchArgs += " --load-extension=`"$ExtDir`""
+        $launchArgs += "--load-extension=$ExtDir"
     }
     Start-Process -FilePath $chrome -ArgumentList $launchArgs
 }
