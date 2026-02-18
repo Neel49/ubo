@@ -34,7 +34,7 @@ ubo install
 
 **Step 1** — Install the `ubo` command:
 ```powershell
-irm https://raw.githubusercontent.com/neel49/ubo/main/windows/install.ps1 | iex
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; irm https://raw.githubusercontent.com/neel49/ubo/main/windows/install.ps1 | iex
 ```
 
 **Step 2** — Download uBlock Origin and create the shortcuts:
