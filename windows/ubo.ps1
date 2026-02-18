@@ -160,7 +160,17 @@ function Invoke-Install {
 
     $chromeProc = Get-Process -Name "chrome" -ErrorAction SilentlyContinue
     if ($chromeProc) {
-        Write-Warn "Chrome is running. You will need to close it and relaunch via the shortcut."
+        Write-Warn "Chrome is running. It must be closed for uBlock Origin to load."
+        $closeIt = Read-Host "  Close Chrome now? [Y/n]"
+        if ($closeIt -match '^[Nn]$') {
+            Write-Warn "You will need to close Chrome manually and relaunch via 'Chrome uBO'."
+        }
+        else {
+            Write-Info "Closing Chrome..."
+            Stop-Process -Name "chrome" -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+            Write-Success "Chrome closed."
+        }
         Write-Host ""
     }
 
@@ -180,10 +190,22 @@ function Invoke-Install {
     Write-Host ""
     Write-Success "Installation complete!"
     Write-Host ""
-    Write-Host "  Next steps:"
-    Write-Host "  1. Close Chrome completely"
-    Write-Host "  2. Double-click 'Chrome uBO' on your Desktop"
-    Write-Host "  3. Pin it to your taskbar"
+
+    # Auto-launch Chrome with uBlock Origin if Chrome is not running
+    $chromeStillRunning = Get-Process -Name "chrome" -ErrorAction SilentlyContinue
+    if (-not $chromeStillRunning) {
+        Write-Info "Launching Chrome with uBlock Origin..."
+        Invoke-Launch
+        Write-Host ""
+        Write-Host "  Chrome is opening with uBlock Origin loaded."
+        Write-Host "  Pin 'Chrome uBO' from your Desktop to your taskbar for easy access."
+    }
+    else {
+        Write-Host "  Next steps:"
+        Write-Host "  1. Close Chrome completely"
+        Write-Host "  2. Double-click 'Chrome uBO' on your Desktop"
+        Write-Host "  3. Pin it to your taskbar"
+    }
     Write-Host ""
     Write-Warn "Chrome will show a developer mode dialog on launch. Click Cancel to dismiss."
 }

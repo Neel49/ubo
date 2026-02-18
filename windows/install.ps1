@@ -11,18 +11,21 @@ Write-Host "==> Installing ubo..." -ForegroundColor Cyan
 # Create directory
 New-Item -ItemType Directory -Path $UboDir -Force | Out-Null
 
-# Download ubo.ps1 using WebClient (more reliable than Invoke-WebRequest on PS 5.1)
+# Download ubo.ps1 as ubo-main.ps1 (avoids PowerShell finding .ps1 before .bat)
 try {
-    (New-Object Net.WebClient).DownloadFile($Url, "$UboDir\ubo.ps1")
+    (New-Object Net.WebClient).DownloadFile($Url, "$UboDir\ubo-main.ps1")
 }
 catch {
     Write-Host "Error: Download failed. $_" -ForegroundColor Red
     exit 1
 }
 
-# Create ubo.bat wrapper
+# Remove old ubo.ps1 if it exists (previous versions used this name which conflicts with PowerShell resolution)
+if (Test-Path "$UboDir\ubo.ps1") { Remove-Item "$UboDir\ubo.ps1" -Force }
+
+# Create ubo.bat wrapper (handles execution policy automatically)
 Set-Content -Path "$UboDir\ubo.bat" -Value '@echo off
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ubo.ps1" %*'
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ubo-main.ps1" %*'
 
 # Add to PATH
 $p = [Environment]::GetEnvironmentVariable("Path", "User")
